@@ -1,45 +1,39 @@
 module.exports = function transform(arr) {
     let mods = ['--discard-next','--discard-prev','--double-next','--double-prev'];
-    let response = [];
+    let array = arr.slice(0, arr.length);
+    let resp = [];
+    
+    if(!Array.isArray(array))   {   throw new Error(); return []   }
+    if(array.length == 0)       {   return [];                     }
 
-    if(!Array.isArray(arr)){
-        throw new Error();
-    }
-
-    for(let i = 0 ; i < arr.length ; i++){
-        switch (arr[i]) {
+    for(let i = 0 ; i < array.length ; i++ ){
+        switch (array[i]) {
             case '--discard-next':
-                if(i != arr.length-1 && !mods.includes(arr[i+1])){
-                   i++;
-                }
+                if(!(i == array.length-1 || mods.includes(array[i+1]))) {  array[i+1] = null; }
                 break;
             case '--discard-prev':
-                if(i != 0 ){
-                   response.splice(response.length-1,1);
-                }
+                if(!(i == 0 || mods.includes(array[i-1])))           {  array[i-1] = null; }
                 break;
+
             case '--double-next':
-                if(i != arr.length-1 && !mods.includes(arr[i+1])) {
-                    response.push(arr[i+1]);
-                }
+                if(!(i == array.length-1 || mods.includes(array[i+1]))) {  array.splice(i, 1, array[i + 1]);  }
                 break;
+
             case '--double-prev':
-                if(i != 0 && !mods.includes(arr[i-1])) {
-                    response.push(arr[i-1]);
-                }
+                if(!(i == 0 || mods.includes(array[i-1]))) {   array.splice(i, 1, array[i - 1]);}
+                else                                       {   array.splice(i, 1);           i--;  }
                 break;
-            default:
-                response.push(arr[i]);
 
+            default: break;
         }
     }
 
-    for(let i = 0 ; i < arr.length ; i++){
-        if(mods.includes(arr[i])) {
-            arr.splice(i, 1);
-            i--;
+    for(let i = 0 ; i < array.length ; i++ ){
+       if(array[i] != '--discard-next' && array[i] != '--discard-prev' && 
+          array[i] != '--double-next' && array[i] != '--double-prev' && array[i] != null)
+        {
+            resp.push(array[i]);
         }
     }
-
-    return response;
+    return resp;
 };
